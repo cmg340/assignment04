@@ -13,6 +13,15 @@ editor_options:
 ## Visualization 1
 
 ```{r}
+library(tidyverse)
+library(readxl)
+library(sf)
+library(tigris)
+library(rgeoboundaries)
+library(readr)
+library(ggrepel)
+
+
 
 ```
 
