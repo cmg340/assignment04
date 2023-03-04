@@ -36,9 +36,10 @@ library(janitor)
 
 \newpage
 
-## Visualization 3
+## Visualization 3: Bar Graph 
 
 ```{r}
+
 
 ```
 
