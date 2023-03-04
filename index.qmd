@@ -21,8 +21,8 @@ library(rgeoboundaries)
 library(readr)
 library(ggrepel)
 library(janitor)
-
-
+library(rgeoboundaries)
+library(sf)
 
 ```
 
@@ -31,6 +31,43 @@ library(janitor)
 ## Visualization 2
 
 ```{r}
+world <- geoboundaries()
+world
+
+#loading NCD activity data
+NCD_activity <- read_csv("NCD_PAC_ADO.csv")
+
+#breaking out by year
+ncd_05 <- NCD_activity %>%  filter(TimeDim == 2005)
+ncd_15 <- NCD_activity %>%  filter(TimeDim == 2015)
+
+#joining to world spatial data
+ncd_geo_05 <- world %>% left_join(ncd_05, 
+                                   by = c("shapeISO" = "SpatialDimensionValueCode"),
+                                   copy = FALSE,
+                                   suffix = c(".x",".y"),
+                                   keep = TRUE)                                   
+ncd_geo_15 <- world %>% inner_join(ncd_15, 
+                                   by = c("shapeISO" = "SpatialDimensionValueCode"),
+                                   copy = FALSE,
+                                   suffix = c(".x",".y"),
+                                   keep = TRUE)                                   
+
+
+
+ncd_geo_05 %>% 
+  ggplot()+
+  geom_sf(aes(fill = NumericValue), color = "white") +
+  scale_fill_gradient(
+    low = "#752263",
+    high = "#d495c4"
+  )+
+  theme_void()+
+  labs(
+    title = "Activity level by country in 2005"
+  )
+
+
 
 ```
 
