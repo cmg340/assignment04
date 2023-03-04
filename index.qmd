@@ -36,12 +36,51 @@ library(janitor)
 
 \newpage
 
-## Visualization 3: Bar Graph 
+## Visualization 3: Bar Graph of Alcohol Consumption between Males and Females
 
 ```{r}
+alcohol <- read_csv("alcohol.csv")
 
+# select data that is needed and make adjustments 
+alcohol2 <- alcohol %>%
+  select(Location, Period, Dim1, FactValueNumeric, FactValueNumericLow, FactValueNumericHigh, ParentLocation) %>%
+  rename("country" = Location,
+         "year" = Period, 
+         "average" = FactValueNumeric, 
+         "min" = FactValueNumericLow,
+         "max" = FactValueNumericHigh,
+         "sex" = Dim1,
+         "region" = ParentLocation) %>%
+  filter(sex != "Both sexes")
+
+# plot graph
+alcohol2 %>%
+  ggplot(aes(x = year,
+             y = average)) +
+  geom_col(aes(fill = sex)) +
+  facet_wrap(~region) +
+
+ # add the labels
+  labs(x = "Year",
+       y = "Total Alcohol Consumption per Capita\nin Litres of Pure Alcohol",
+       caption = "Source: World Health Organisation", 
+       title = "Total Alcohol Consumption Since 2000 in Different Regions", 
+       subtitle = "Has there been a notable trend in alcohol consumption over the years?", 
+       fill = "Gender"
+  ) + 
+  
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"),
+        axis.title = element_text(size = 8, face = "bold"),
+        legend.title = element_text(size = 8, face = "bold"),
+        legend.text = element_text(size = 8)) +
+  
+  scale_fill_manual(values = c("lightpink", "lightblue"))
+    
 
 ```
+
+This visualization tracks alcohol consumption trends in different regions around the world between males and females. The theory is that alcohol consumption has increased drastically in the past 10 years, however, the results proved otherwise. Alcohol consumption seems to be somewhat consistent since 2000, with males consuming much more alcohol and females in all regions.
 
 \newpage
 
