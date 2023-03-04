@@ -70,21 +70,26 @@ expenditures %>%
                y = lngdp, 
                size = population)) +
   geom_point(color = "green", 
-             alpha = 0.7) +
-  geom_text_repel(mapping = aes(label = Countries), size = 3) +
-  
-  # set the scale 
-  scale_size(range = c(1, 20)) +
-  theme_minimal() +
+             alpha = 0.5) +
+  geom_text_repel(mapping = aes(label = Countries), size = 1.5) +
+
+  # set the scale
+  scale_size(range = c(1, 15)) +
   
   # add the labels
- labs(x = "Primary Healthcare Expenditure\nper capita",
+  labs(x = "Primary Healthcare Expenditure\nper Capita (US$)",
        y = "Natural log of GDP",
        caption = "Source: World Health Organisation and The World Bank", 
        title = "Primary Healthcare Expenditure based on GDP per capita", 
        subtitle = "Does GDP impact spending on primary healthcare?", 
        size = "Population\nin millions"
-  ) 
+  ) + 
+  
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"),
+        axis.title = element_text(size = 8, face = "bold"),
+        legend.title = element_text(size = 8, face = "bold"),
+        legend.text = element_text(size = 8))
 
 
 ```
