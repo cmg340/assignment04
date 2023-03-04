@@ -22,6 +22,75 @@ library(readr)
 library(ggrepel)
 library(janitor)
 
+options(scipen = 999)
+
+# read in the datasets
+
+health_expenditures <- read_excel("nha_indicators.xlsx")
+gdppc <- read_excel("gdp.xls")
+
+# make the expenditures dataset wider 
+expenditures_wide <- health_expenditures %>%
+  select(Countries, Indicators, '2018')
+
+expenditures_wide <- pivot_wider(data = health_expenditures, 
+                                 id_cols = Countries, 
+                                 names_from = Indicators, 
+                                 values_from = '2018'
+)
+
+# select only relevant columns 
+gdppc2018 <- gdppc %>%
+  select(Countries, '2018') %>%
+  rename("gdp" = '2018')
+
+
+# merge the datasets
+expenditures <- merge(expenditures_wide, gdppc2018, 
+                      by = 'Countries',
+                      all.x = TRUE)
+
+# rename variables for ease of coding
+expenditures <- expenditures %>%
+  rename("population" = `Population (in thousands)`,
+         "primary_health" = `Primary Health Care (PHC) Expenditure per Capita in US$`)
+
+# change variables from characters to numeric values 
+expenditures <- expenditures %>% 
+  mutate(population = as.numeric(population),
+         primary_health = as.numeric(primary_health))
+
+expenditures <- expenditures %>% 
+  mutate(lngdp = log(gdp),
+         population = population/1000)
+
+# plot the graph
+expenditures %>%
+  ggplot(mapping =
+           aes(x = primary_health, 
+               y = lngdp, 
+               size = population)) +
+  geom_point(color = "green", 
+             alpha = 0.5) +
+  geom_text_repel(mapping = aes(label = Countries), size = 1.5) +
+
+  # set the scale
+  scale_size(range = c(1, 15)) +
+  
+  # add the labels
+  labs(x = "Primary Healthcare Expenditure\nper Capita (US$)",
+       y = "Natural log of GDP",
+       caption = "Source: World Health Organisation and The World Bank", 
+       title = "Primary Healthcare Expenditure based on GDP per capita", 
+       subtitle = "Does GDP impact spending on primary healthcare?", 
+       size = "Population\nin millions"
+  ) + 
+  
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"),
+        axis.title = element_text(size = 8, face = "bold"),
+        legend.title = element_text(size = 8, face = "bold"),
+        legend.text = element_text(size = 8))
 
 
 ```
@@ -80,3 +149,4 @@ mort_19 %>% ggplot(mapping = aes(x = "" , y = value_string, fill = cause)) +
 ```
 
 This is a quick snapshot of what leading causes of infant mortality are accross the world. As is evident by these side-by side comparisons, the Americas, Europe and the Western Pacific experience relatively fewer infant mortalities overall compared to Afria and South East Asia. 
+
