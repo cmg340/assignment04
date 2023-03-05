@@ -61,15 +61,19 @@ region_data <- region_data %>%
   rename("Countries" = Location,
          "region" = ParentLocation)
 
-
 # merge the datasets
 expenditures <- merge(expenditures_wide, gdppc2018, 
                       by = 'Countries',
-                      all.x = TRUE)
+                      all.x = TRUE,
+                      all.y = TRUE)
 
 expenditures <- merge(expenditures, region_data, 
                       by = 'Countries',
-                      all.x = TRUE)
+                      all.x = TRUE,
+                      all.y = TRUE)
+
+# remove duplicate rows
+expenditures <- expenditures %>% distinct()
 
 # rename variables for ease of coding
 expenditures <- expenditures %>%
@@ -91,11 +95,14 @@ expenditures %>%
            aes(x = primary_health, 
                y = lngdp, 
                size = population)) +
-  geom_point(aes(color = region),
-             alpha = 0.4) +
-  geom_text(mapping = 
-              aes(label = Countries), 
-            size = 2.5) +
+  
+  geom_point(aes(color = region,
+                 shape = region),
+             alpha = 0.7) +
+  
+  geom_text_repel(aes(label = Countries),
+                  show.legend = FALSE,
+                  size = 3) +
   
   # set the scale
   scale_size(range = c(1, 30)) +
@@ -107,7 +114,8 @@ expenditures %>%
        title = "Primary Healthcare Expenditure based on GDP per capita", 
        subtitle = "Does GDP impact spending on primary healthcare?", 
        size = "Population\nin millions",
-       color = "Region"
+       color = "Region",
+       shape = "Region"
   ) + 
   
   # adjust the theme
