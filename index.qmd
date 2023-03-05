@@ -10,7 +10,7 @@ editor_options:
 
 \vspace{0.1in}
 
-## Visualization 1
+## Loading the Necessary Libraries
 
 ```{r}
 library(tidyverse)
@@ -22,6 +22,11 @@ library(readr)
 library(ggrepel)
 library(janitor)
 
+```
+
+## Visualization 1
+
+```{r, fig.width = 11, fig.height = 6.5}
 options(scipen = 999)
 
 # read in the datasets
@@ -72,8 +77,8 @@ expenditures %>%
                size = population)) +
   geom_point(color = "green", 
              alpha = 0.5) +
-  geom_text_repel(mapping = aes(label = Countries), size = 1.5) +
-
+  geom_text_repel(mapping = aes(label = Countries), size = 2.5) +
+  
   # set the scale
   scale_size(range = c(1, 15)) +
   
@@ -86,14 +91,20 @@ expenditures %>%
        size = "Population\nin millions"
   ) + 
   
+  # adjust the theme
   theme_minimal() +
   theme(plot.title = element_text(face = "bold"),
         axis.title = element_text(size = 8, face = "bold"),
         legend.title = element_text(size = 8, face = "bold"),
         legend.text = element_text(size = 8))
 
-
 ```
+
+[***Interpretation***]{.underline}
+
+The visualization shows that higher GDP (which has been transformed to natural log) does not necessarily amount to greater spending in primary healthcare. The Scandinavian countries who have higher GDP's tend to spend more on primary healthcare, but other high GDP countries like those in the Middle East spend very little. A majority of the countries are clustered towards the lower end of the expenditure spectrum.
+
+It is also surprising to note that the United States did not have any data on primary healthcare expenditure, and is therefore left out of the graph.
 
 \newpage
 
