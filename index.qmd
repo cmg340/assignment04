@@ -10,13 +10,11 @@ editor_options:
 
 \vspace{0.1in}
 
-## Assignment 04 
+## Assignment 04
 
 For this assignment, we decided to focus on global health, in particular, primary healthcare and non-communicable diseases. A leading cause of death around the world has been due to non-communicable diseases, which are also known as "silent" diseases that are caused by lifestyle choices, and are easily preventable with well-resourced and robust primary healthcare infrastructure.
 
-\vspace{0.1in}
-
-We wanted to use these data visualizations to explore if better policy is needed to increase government spending on primary healthcare and what are some areas that the spending should be focused on. 
+We wanted to use these data visualizations to explore if better policy is needed to increase government spending on primary healthcare and what are some areas that the spending should be focused on.
 
 ## Loading the Necessary Libraries
 
@@ -126,7 +124,9 @@ It is also surprising to note that the United States did not have any data on pr
 
 ## Visualization 3: Bar Graph of Alcohol Consumption between Males and Females
 
-```{r}
+```{r, fig.width = 10}
+
+# import alcohol dataset
 alcohol <- read_csv("alcohol.csv")
 
 # select data that is needed and make adjustments 
@@ -147,8 +147,8 @@ alcohol2 %>%
              y = average)) +
   geom_col(aes(fill = sex)) +
   facet_wrap(~region) +
-
- # add the labels
+  
+  # add the labels
   labs(x = "Year",
        y = "Total Alcohol Consumption per Capita\nin Litres of Pure Alcohol",
        caption = "Source: World Health Organisation", 
@@ -164,48 +164,54 @@ alcohol2 %>%
         legend.text = element_text(size = 8)) +
   
   scale_fill_manual(values = c("lightpink", "lightblue"))
-    
+
 
 ```
+
+[***Interpretation***]{.underline}
 
 This visualization tracks alcohol consumption trends in different regions around the world between males and females. The theory is that alcohol consumption has increased drastically in the past 10 years, however, the results proved otherwise. Alcohol consumption seems to be somewhat consistent since 2000, with males consuming much more alcohol and females in all regions.
 
 \newpage
 
-## Visualization 4: Pie chart of infant mortality causes 
+## Visualization 4: Pie chart of infant mortality causes
 
-```{r}
+```{r, fig.width = 10, fig.height = 7}
 #import mortality data
 mortality <- read_excel("mortality.xlsx") %>% clean_names() %>% mutate(value_string = as.numeric(value_string))
 
 ###selecting only 2019 data, and only data from each region
 mort_19 <- mortality %>% filter(year == 2019, who_region != "Global")
 
-
 ###defining a blank theme
 blank_theme <- theme_minimal()+
   theme(
-  axis.title.x = element_blank(),
-  axis.title.y = element_blank(),
-  panel.border = element_blank(),
-  panel.grid=element_blank(),
-  axis.ticks = element_blank(),
-  plot.title=element_text(size=14, face="bold")
+    axis.title.x = element_blank(),
+    axis.title.y = element_blank(),
+    panel.border = element_blank(),
+    panel.grid = element_blank(),
+    axis.ticks = element_blank(),
+    plot.title = element_text(face ="bold"), 
+    legend.title = element_text(face = "bold")
   )
 
 
 mort_19 %>% ggplot(mapping = aes(x = "" , y = value_string, fill = cause)) +
+  
   geom_bar(width = 1, stat = "identity")+
   coord_polar("y", start= 0)+
   theme_minimal() +
   facet_wrap(~who_region)+ blank_theme +
   theme(axis.text.x=element_blank()) +
-  labs(title = "Infant Mortality by cause", 
-       subtitle = "Subdivided by World Health Organization region",
-       caption = "Data source: World Health Organization, 2019")
+  
+  labs(title = "Infant Mortality by Cause and Region", 
+       subtitle = "What are the biggest causes of infant mortality globally?",
+       caption = "Source: World Health Organization, 2019", 
+       fill = "Causes of Infant Mortality")
 
 
 ```
 
-This is a quick snapshot of what leading causes of infant mortality are accross the world. As is evident by these side-by side comparisons, the Americas, Europe and the Western Pacific experience relatively fewer infant mortalities overall compared to Afria and South East Asia. 
+[***Interpretation***]{.underline}
 
+This is a quick snapshot of what leading causes of infant mortality are across the world. As is evident by these side-by side comparisons, the Americas, Europe and the Western Pacific experience relatively fewer infant mortalities overall compared to Africa and South East Asia. 
