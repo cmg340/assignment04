@@ -34,13 +34,14 @@ library(janitor)
 
 ## Visualization 1: Scatterplot of Primary Health Expenditures and GDP per Capita
 
-```{r, fig.width = 11, fig.height = 6.5}
+```{r, fig.width = 11, fig.height = 7}
 options(scipen = 999)
 
 # read in the datasets
 
 health_expenditures <- read_excel("nha_indicators.xlsx")
 gdppc <- read_excel("gdp.xls")
+region_data <- read_csv("alcohol.csv")
 
 # make the expenditures dataset wider 
 expenditures_wide <- health_expenditures %>%
@@ -57,9 +58,18 @@ gdppc2018 <- gdppc %>%
   select(Countries, '2018') %>%
   rename("gdp" = '2018')
 
+region_data <- region_data %>%
+  select(Location, ParentLocation) %>%
+  rename("Countries" = Location,
+         "region" = ParentLocation)
+
 
 # merge the datasets
 expenditures <- merge(expenditures_wide, gdppc2018, 
+                      by = 'Countries',
+                      all.x = TRUE)
+
+expenditures <- merge(expenditures, region_data, 
                       by = 'Countries',
                       all.x = TRUE)
 
@@ -83,12 +93,14 @@ expenditures %>%
            aes(x = primary_health, 
                y = lngdp, 
                size = population)) +
-  geom_point(color = "green", 
-             alpha = 0.5) +
-  geom_text_repel(mapping = aes(label = Countries), size = 2.5) +
+  geom_point(aes(color = region),
+             alpha = 0.4) +
+  geom_text(mapping = 
+              aes(label = Countries), 
+            size = 2.5) +
   
   # set the scale
-  scale_size(range = c(1, 15)) +
+  scale_size(range = c(1, 30)) +
   
   # add the labels
   labs(x = "Primary Healthcare Expenditure\nper Capita (US$)",
@@ -96,7 +108,8 @@ expenditures %>%
        caption = "Source: World Health Organisation and The World Bank", 
        title = "Primary Healthcare Expenditure based on GDP per capita", 
        subtitle = "Does GDP impact spending on primary healthcare?", 
-       size = "Population\nin millions"
+       size = "Population\nin millions",
+       color = "Region"
   ) + 
   
   # adjust the theme
@@ -126,7 +139,7 @@ It is also surprising to note that the United States did not have any data on pr
 
 ## Visualization 3: Bar Graph of Alcohol Consumption between Males and Females
 
-```{r}
+```{r, fig.width = 11, fig.height = 7}
 alcohol <- read_csv("alcohol.csv")
 
 # select data that is needed and make adjustments 
@@ -146,6 +159,7 @@ alcohol2 %>%
   ggplot(aes(x = year,
              y = average)) +
   geom_col(aes(fill = sex)) +
+  
   facet_wrap(~region) +
 
  # add the labels
@@ -174,7 +188,7 @@ This visualization tracks alcohol consumption trends in different regions around
 
 ## Visualization 4: Pie chart of infant mortality causes 
 
-```{r}
+```{r, fig.width = 11}
 #import mortality data
 mortality <- read_excel("mortality.xlsx") %>% clean_names() %>% mutate(value_string = as.numeric(value_string))
 
