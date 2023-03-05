@@ -10,6 +10,7 @@ editor_options:
 
 \vspace{0.1in}
 
+<<<<<<< HEAD
 ## Assignment 04
 
 For this assignment, we decided to focus on global health, in particular, primary healthcare and non-communicable diseases. A leading cause of death around the world has been due to non-communicable diseases, which are also known as "silent" diseases that are caused by lifestyle choices, and are easily preventable with well-resourced and robust primary healthcare infrastructure.
@@ -17,6 +18,18 @@ For this assignment, we decided to focus on global health, in particular, primar
 We wanted to use these data visualizations to explore if better policy is needed to increase government spending on primary healthcare and what are some areas that the spending should be focused on.
 
 ## Visualization 1
+=======
+## Assignment 04 
+
+For this assignment, we decided to focus on global health, in particular, primary healthcare and non-communicable diseases. A leading cause of death around the world has been due to non-communicable diseases, which are also known as "silent" diseases that are caused by lifestyle choices, and are easily preventable with well-resourced and robust primary healthcare infrastructure.
+
+\vspace{0.1in}
+
+We wanted to use these data visualizations to explore if better policy is needed to increase government spending on primary healthcare and what are some areas that the spending should be focused on. 
+
+
+## Visualization 1: Scatterplot of Primary Health Expenditures and GDP per Capita
+>>>>>>> main
 
 ```{r}
 library(tidyverse)
@@ -28,9 +41,81 @@ library(readr)
 library(ggrepel)
 library(janitor)
 
+options(scipen = 999)
 
+# read in the datasets
+
+health_expenditures <- read_excel("nha_indicators.xlsx")
+gdppc <- read_excel("gdp.xls")
+
+# make the expenditures dataset wider 
+expenditures_wide <- health_expenditures %>%
+  select(Countries, Indicators, '2018')
+
+expenditures_wide <- pivot_wider(data = health_expenditures, 
+                                 id_cols = Countries, 
+                                 names_from = Indicators, 
+                                 values_from = '2018'
+)
+
+# select only relevant columns 
+gdppc2018 <- gdppc %>%
+  select(Countries, '2018') %>%
+  rename("gdp" = '2018')
+
+
+# merge the datasets
+expenditures <- merge(expenditures_wide, gdppc2018, 
+                      by = 'Countries',
+                      all.x = TRUE)
+
+# rename variables for ease of coding
+expenditures <- expenditures %>%
+  rename("population" = `Population (in thousands)`,
+         "primary_health" = `Primary Health Care (PHC) Expenditure per Capita in US$`)
+
+# change variables from characters to numeric values 
+expenditures <- expenditures %>% 
+  mutate(population = as.numeric(population),
+         primary_health = as.numeric(primary_health))
+
+expenditures <- expenditures %>% 
+  mutate(lngdp = log(gdp),
+         population = population/1000)
+
+# plot the graph
+expenditures %>%
+  ggplot(mapping =
+           aes(x = primary_health, 
+               y = lngdp, 
+               size = population)) +
+  geom_point(color = "green", 
+             alpha = 0.5) +
+  geom_text_repel(mapping = aes(label = Countries), size = 1.5) +
+
+  # set the scale
+  scale_size(range = c(1, 15)) +
+  
+  # add the labels
+  labs(x = "Primary Healthcare Expenditure\nper Capita (US$)",
+       y = "Natural log of GDP",
+       caption = "Source: World Health Organisation and The World Bank", 
+       title = "Primary Healthcare Expenditure based on GDP per capita", 
+       subtitle = "Does GDP impact spending on primary healthcare?", 
+       size = "Population\nin millions"
+  ) + 
+  
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"),
+        axis.title = element_text(size = 8, face = "bold"),
+        legend.title = element_text(size = 8, face = "bold"),
+        legend.text = element_text(size = 8))
 
 ```
+
+The visualization shows that higher GDP (which has been transformed to natural log) does not necessarily amount to greater spending in primary healthcare. The Scandinavian countries who have higher GDP's tend to spend more on primary healthcare, but other high GDP countries like those in the Middle East spend very little. A majority of the countries are clustered towards the lower end of the expenditure spectrum.
+
+It is also surprising to note that the United States did not have any data on primary healthcare expenditure, and is therefore left out of the graph. 
 
 \newpage
 
@@ -43,6 +128,7 @@ library(janitor)
 \newpage
 
 ## Visualization 3: Bar Graph of Alcohol Consumption between Males and Females
+<<<<<<< HEAD
 
 ```{r, fig.width = 10}
 
@@ -90,6 +176,51 @@ alcohol2 %>%
 
 [***Interpretation***]{.underline}
 
+=======
+
+```{r}
+alcohol <- read_csv("alcohol.csv")
+
+# select data that is needed and make adjustments 
+alcohol2 <- alcohol %>%
+  select(Location, Period, Dim1, FactValueNumeric, FactValueNumericLow, FactValueNumericHigh, ParentLocation) %>%
+  rename("country" = Location,
+         "year" = Period, 
+         "average" = FactValueNumeric, 
+         "min" = FactValueNumericLow,
+         "max" = FactValueNumericHigh,
+         "sex" = Dim1,
+         "region" = ParentLocation) %>%
+  filter(sex != "Both sexes")
+
+# plot graph
+alcohol2 %>%
+  ggplot(aes(x = year,
+             y = average)) +
+  geom_col(aes(fill = sex)) +
+  facet_wrap(~region) +
+
+ # add the labels
+  labs(x = "Year",
+       y = "Total Alcohol Consumption per Capita\nin Litres of Pure Alcohol",
+       caption = "Source: World Health Organisation", 
+       title = "Total Alcohol Consumption Since 2000 in Different Regions", 
+       subtitle = "Has there been a notable trend in alcohol consumption over the years?", 
+       fill = "Gender"
+  ) + 
+  
+  theme_minimal() +
+  theme(plot.title = element_text(face = "bold"),
+        axis.title = element_text(size = 8, face = "bold"),
+        legend.title = element_text(size = 8, face = "bold"),
+        legend.text = element_text(size = 8)) +
+  
+  scale_fill_manual(values = c("lightpink", "lightblue"))
+    
+
+```
+
+>>>>>>> main
 This visualization tracks alcohol consumption trends in different regions around the world between males and females. The theory is that alcohol consumption has increased drastically in the past 10 years, however, the results proved otherwise. Alcohol consumption seems to be somewhat consistent since 2000, with males consuming much more alcohol and females in all regions.
 
 \newpage
@@ -98,7 +229,7 @@ This visualization tracks alcohol consumption trends in different regions around
 
 ```{r, fig.width = 10, fig.height = 7}
 #import mortality data
-mortality <- read_excel("mortality.xlsx") %>% clean_names()%>% mutate(value_string = as.numeric(value_string))
+mortality <- read_excel("mortality.xlsx") %>% clean_names() %>% mutate(value_string = as.numeric(value_string))
 
 ###selecting only 2019 data, and only data from each region
 mort_19 <- mortality %>% filter(year == 2019, who_region != "Global")
@@ -132,6 +263,11 @@ mort_19 %>% ggplot(mapping = aes(x = "" , y = value_string, fill = cause)) +
 
 ```
 
+<<<<<<< HEAD
 [***Interpretation***]{.underline}
 
 This is a quick snapshot of what leading causes of infant mortality are accross the world. As is evident by these side-by side comparisons, the Americas, Europe and the Western Pacific experience relatively fewer infant mortalities overall compared to Afria and South East Asia.
+=======
+This is a quick snapshot of what leading causes of infant mortality are accross the world. As is evident by these side-by side comparisons, the Americas, Europe and the Western Pacific experience relatively fewer infant mortalities overall compared to Afria and South East Asia. 
+
+>>>>>>> main
