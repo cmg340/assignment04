@@ -20,6 +20,7 @@ library(tigris)
 library(rgeoboundaries)
 library(readr)
 library(ggrepel)
+library(janitor)
 
 ```
 
@@ -123,9 +124,40 @@ It is also surprising to note that the United States did not have any data on pr
 
 \newpage
 
-## Visualization 4
+## Visualization 4: Pie chart of infant mortality causes 
 
 ```{r}
+#import mortality data
+mortality <- read_excel("mortality.xlsx") %>% clean_names()%>% mutate(value_string = as.numeric(value_string))
+
+###selecting only 2019 data, and only data from each region
+mort_19 <- mortality %>% filter(year == 2019, who_region != "Global")
+
+
+###defining a blank theme
+blank_theme <- theme_minimal()+
+  theme(
+  axis.title.x = element_blank(),
+  axis.title.y = element_blank(),
+  panel.border = element_blank(),
+  panel.grid=element_blank(),
+  axis.ticks = element_blank(),
+  plot.title=element_text(size=14, face="bold")
+  )
+
+
+mort_19 %>% ggplot(mapping = aes(x = "" , y = value_string, fill = cause)) +
+  geom_bar(width = 1, stat = "identity")+
+  coord_polar("y", start= 0)+
+  theme_minimal() +
+  facet_wrap(~who_region)+ blank_theme +
+  theme(axis.text.x=element_blank()) +
+  labs(title = "Infant Mortality by cause", 
+       subtitle = "Subdivided by World Health Organization region",
+       caption = "Data source: World Health Organization, 2019")
 
 
 ```
+
+This is a quick snapshot of what leading causes of infant mortality are accross the world. As is evident by these side-by side comparisons, the Americas, Europe and the Western Pacific experience relatively fewer infant mortalities overall compared to Afria and South East Asia. 
+
