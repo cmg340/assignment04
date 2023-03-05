@@ -148,7 +148,7 @@ Data to create this visualization come from the [World Health Organization](http
 
 ## Visualization 2: Map of adolescent activity changes over time
 
-```{r}
+```{r, fig.width = 11, fig.height = 7}
 world <- geoboundaries()
 
 
@@ -157,40 +157,40 @@ NCD_activity <- read_csv("NCD_PAC_ADO.csv")
 
 
 #creating a change var between 2005 and 2015
-  #breaking out by year
-  ncd_05 <- NCD_activity %>%  
-    filter(TimeDim == 2005)%>%
-    group_by(SpatialDimensionValueCode) %>% 
-    filter(DisaggregatingDimension1ValueCode == "BTSX")
-  ncd_15 <- NCD_activity %>%  
-    filter(TimeDim == 2015)%>%
-    group_by(SpatialDimensionValueCode) %>% 
-    filter(DisaggregatingDimension1ValueCode == "BTSX")
-  
-  #creating long form with only two years
-  ncd_long<- rbind(ncd_05, ncd_15)%>% select(TimeDim, SpatialDimensionValueCode, NumericValue)
-  
-  #pivoting to wide
-  ncd_wide <- pivot_wider(ncd_long, names_from = TimeDim, values_from = NumericValue) %>% 
-    rename(
+#breaking out by year
+ncd_05 <- NCD_activity %>%  
+  filter(TimeDim == 2005)%>%
+  group_by(SpatialDimensionValueCode) %>% 
+  filter(DisaggregatingDimension1ValueCode == "BTSX")
+ncd_15 <- NCD_activity %>%  
+  filter(TimeDim == 2015)%>%
+  group_by(SpatialDimensionValueCode) %>% 
+  filter(DisaggregatingDimension1ValueCode == "BTSX")
+
+#creating long form with only two years
+ncd_long<- rbind(ncd_05, ncd_15)%>% select(TimeDim, SpatialDimensionValueCode, NumericValue)
+
+#pivoting to wide
+ncd_wide <- pivot_wider(ncd_long, names_from = TimeDim, values_from = NumericValue) %>% 
+  rename(
     "value_05" = "2005",
     "value_15" = "2015"
   )
-  
-  #adding change over time column
-  ncd_wide <- ncd_wide %>% mutate(Percent_change = (value_15 - value_05),
-                                  round_15 = round(value_15, digits=0),
-                                  round_15 = as.character(round_15),
-                                  round_15 = paste0(round_15, "%"))
+
+#adding change over time column
+ncd_wide <- ncd_wide %>% mutate(Percent_change = (value_15 - value_05),
+                                round_15 = round(value_15, digits=0),
+                                round_15 = as.character(round_15),
+                                round_15 = paste0(round_15, "%"))
 
 #joining to world spatial data
 ncd_geo_wide <- world %>% left_join(ncd_wide, 
-                                   by = c("shapeISO" = "SpatialDimensionValueCode"),
-                                   copy = FALSE,
-                                   suffix = c(".x",".y"),
-                                   keep = TRUE)  
-  
-  
+                                    by = c("shapeISO" = "SpatialDimensionValueCode"),
+                                    copy = FALSE,
+                                    suffix = c(".x",".y"),
+                                    keep = TRUE)  
+
+
 #creating map of change over time
 ncd_geo_wide%>% 
   ggplot()+
@@ -200,12 +200,21 @@ ncd_geo_wide%>%
     high = "#FC1A1A",
     na.value = "#D3D2D2",
   )+
+  
   scale_color_manual(breaks=c("TRUE"),values = "#D3D2D2", labels = 'Data not available')+ 
+  
   geom_sf_text(aes(label = round_15), color = "white", size = 2)+
+  
   theme_void()+
+  theme(plot.title = element_text(face = "bold"),
+        legend.title = element_text(size = 8, face = "bold"),
+        legend.text = element_text(size = 8)) +
+  
+  
   labs(
     title = "Adolescents doing less than 60min/day of moderate-vigorous physical activity",
     subtitle = "Percent change between 2005 and 2015",
+    fill = "Percent Change",
     caption = str_wrap("Source: WHO noncommunicable diseases survey and the rgeoboundaries package. Note: NA data are shown in grey.")
   )
 
@@ -278,7 +287,7 @@ Data for used in this visualization came from the [World Health Organization](ht
 
 ## Visualization 4: Pie chart of neonatal mortality causes
 
-```{r, fig.width = 11}
+```{r, fig.width = 11, fig.height = 7}
 
 #import mortality data
 mortality <- read_excel("mortality.xlsx") %>% clean_names() %>% mutate(value_string = as.numeric(value_string))
