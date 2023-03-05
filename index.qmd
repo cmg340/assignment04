@@ -27,6 +27,9 @@ library(rgeoboundaries)
 library(readr)
 library(ggrepel)
 library(janitor)
+library(rgeoboundaries)
+library(sf)
+
 
 ```
 
@@ -117,6 +120,7 @@ expenditures %>%
         legend.title = element_text(size = 8, face = "bold"),
         legend.text = element_text(size = 8))
 
+
 ```
 
 [***Interpretation***]{.underline}
@@ -130,8 +134,73 @@ It is also surprising to note that the United States did not have any data on pr
 ## Visualization 2
 
 ```{r}
+world <- geoboundaries()
+world
+
+#loading NCD activity data
+NCD_activity <- read_csv("NCD_PAC_ADO.csv")
+
+
+#creating a change var between 2005 and 2015
+  #breaking out by year
+  ncd_05 <- NCD_activity %>%  
+    filter(TimeDim == 2005)%>%
+    group_by(SpatialDimensionValueCode) %>% 
+    filter(DisaggregatingDimension1ValueCode == "BTSX")
+  ncd_15 <- NCD_activity %>%  
+    filter(TimeDim == 2015)%>%
+    group_by(SpatialDimensionValueCode) %>% 
+    filter(DisaggregatingDimension1ValueCode == "BTSX")
+  
+  #creating long form with only two years
+  ncd_long<- rbind(ncd_05, ncd_15)%>% select(TimeDim, SpatialDimensionValueCode, NumericValue)
+  
+  #pivoting to wide
+  ncd_wide <- pivot_wider(ncd_long, names_from = TimeDim, values_from = NumericValue) %>% 
+    rename(
+    "value_05" = "2005",
+    "value_15" = "2015"
+  )
+  
+  #adding change over time column
+  ncd_wide <- ncd_wide %>% mutate(Percent_change = (value_15 - value_05),
+                                  round_15 = round(value_15, digits=0),
+                                  round_15 = as.character(round_15),
+                                  round_15 = paste0(round_15, "%"))
+
+#joining to world spatial data
+ncd_geo_wide <- world %>% left_join(ncd_wide, 
+                                   by = c("shapeISO" = "SpatialDimensionValueCode"),
+                                   copy = FALSE,
+                                   suffix = c(".x",".y"),
+                                   keep = TRUE)  
+  
+  
+#creating map of change over time
+ncd_geo_wide%>% 
+  ggplot()+
+  geom_sf(aes(fill = Percent_change, color= na), color = "white", alpha = 0.9)+
+  scale_fill_gradient(
+    low = "#67FC4A",
+    high = "#FC1A1A",
+    na.value = "#D3D2D2",
+  )+
+  scale_color_manual(breaks=c("TRUE"),values = "#D3D2D2", labels = 'Data not available')+ 
+  geom_sf_text(aes(label = round_15), color = "white", size = 2)+
+  theme_void()+
+  labs(
+    title = "Adolescents doing less than 60min/day of moderate-vigorous physical activity",
+    subtitle = "Percent change between 2005 and 2015",
+    caption = str_wrap("Data here were sourced from the WHO noncommunicable diseases survey and the rgeoboundaries package. One important note is that a grey color in this map indicates that data were not available for a particular country in either 2005, 2015, or both years.Percents shown in white text overlaying the countries are the 2015 values for percent of teenagers in a country not meeting the WHO guidelines.")
+  )
+
+
 
 ```
+
+[***Interpretation***]{.underline}
+
+The above map shows trends in activity levels of adolescents from 2005 to 2015. While much of the world's teens changed little over this time period, teens in the United States, India, and Canada trended closer to meeting the World Health Organization's recommended 60 minutes of moderate to high intensity activity per day. Overlaying the color map of the world are the rounded 2015 values of each country teens in relation to WHO standards. 
 
 \newpage
 
@@ -200,7 +269,7 @@ mort_19 <- mortality %>% filter(year == 2019, who_region != "Global")
 
 ###defining a blank theme
 blank_theme <- theme_minimal()+
-  theme(
+  theme( 
     axis.title.x = element_blank(),
     axis.title.y = element_blank(),
     panel.border = element_blank(),
@@ -211,8 +280,7 @@ blank_theme <- theme_minimal()+
   )
 
 
-mort_19 %>% ggplot(mapping = aes(x = "" , y = value_string, fill = cause)) +
-  
+mort_19 %>% ggplot(mapping = aes(x = "" , y = value_string, fill = cause, alpha = 0.5)) +
   geom_bar(width = 1, stat = "identity")+
   coord_polar("y", start= 0)+
   theme_minimal() +
@@ -223,6 +291,7 @@ mort_19 %>% ggplot(mapping = aes(x = "" , y = value_string, fill = cause)) +
        subtitle = "What are the biggest causes of infant mortality globally?",
        caption = "Source: World Health Organization, 2019", 
        fill = "Causes of Infant Mortality")
+
 
 
 ```
