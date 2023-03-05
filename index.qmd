@@ -1,16 +1,21 @@
 ---
-title: "index.qmd"
+title: "Assignment 4: Global Health"
 author: Maeve Grady and Leanne Chook
 format: 
   html:
+    code-fold: true
     self-contained: true
+execute: 
+  echo: true
+  warning: false
+  error: false
 editor_options: 
   chunk_output_type: console
 ---
 
 \vspace{0.1in}
 
-## Assignment 04
+## Introduction
 
 For this assignment, we decided to focus on global health, in particular, primary healthcare and non-communicable diseases. A leading cause of death around the world has been due to non-communicable diseases, which are also known as "silent" diseases that are caused by lifestyle choices, and are easily preventable with well-resourced and robust primary healthcare infrastructure.
 
@@ -129,13 +134,15 @@ The visualization shows that higher GDP (which has been transformed to natural l
 
 It is also surprising to note that the United States did not have any data on primary healthcare expenditure, and is therefore left out of the graph.
 
+Data to create this visualization come from the [World Health Organization](https://www.who.int/data/gho/data/indicators/indicator-details/GHO/current-health-expenditure-(che)-per-capita-in-us$) and the [World Bank](https://www.who.int/data/gho/data/indicators/indicator-details/GHO/total-(recorded-unrecorded)-alcohol-per-capita-(15-)-consumption).
+
 \newpage
 
-## Visualization 2
+## Visualization 2: Map of adolescent activity changes over time
 
 ```{r}
 world <- geoboundaries()
-world
+
 
 #loading NCD activity data
 NCD_activity <- read_csv("NCD_PAC_ADO.csv")
@@ -191,7 +198,7 @@ ncd_geo_wide%>%
   labs(
     title = "Adolescents doing less than 60min/day of moderate-vigorous physical activity",
     subtitle = "Percent change between 2005 and 2015",
-    caption = str_wrap("Data here were sourced from the WHO noncommunicable diseases survey and the rgeoboundaries package. One important note is that a grey color in this map indicates that data were not available for a particular country in either 2005, 2015, or both years.Percents shown in white text overlaying the countries are the 2015 values for percent of teenagers in a country not meeting the WHO guidelines.")
+    caption = str_wrap("Source: WHO noncommunicable diseases survey and the rgeoboundaries package. Note: NA data are shown in grey.")
   )
 
 
@@ -201,6 +208,8 @@ ncd_geo_wide%>%
 [***Interpretation***]{.underline}
 
 The above map shows trends in activity levels of adolescents from 2005 to 2015. While much of the world's teens changed little over this time period, teens in the United States, India, and Canada trended closer to meeting the World Health Organization's recommended 60 minutes of moderate to high intensity activity per day. Overlaying the color map of the world are the rounded 2015 values of each country teens in relation to WHO standards. 
+
+Data to create this visualization come from the [World Health Organization](https://www.who.int/data/gho/data/indicators/indicator-details/GHO/insufficiently-active-(crude-estimate)) and the [rgeoboundaries](https://github.com/wmgeolab/rgeoboundaries) package.
 
 \newpage
 
@@ -255,9 +264,11 @@ alcohol2 %>%
 
 This visualization tracks alcohol consumption trends in different regions around the world between males and females. The theory is that alcohol consumption has increased drastically in the past 10 years, however, the results proved otherwise. Alcohol consumption seems to be somewhat consistent since 2000, with males consuming much more alcohol and females in all regions.
 
+Data for used in this visualization came from the [World Health Organization](https://www.who.int/data/gho/data/indicators/indicator-details/GHO/total-(recorded-unrecorded)-alcohol-per-capita-(15-)-consumption).
+
 \newpage
 
-## Visualization 4: Pie chart of infant mortality causes
+## Visualization 4: Pie chart of neonatal mortality causes
 
 ```{r, fig.width = 11}
 
@@ -280,7 +291,7 @@ blank_theme <- theme_minimal()+
   )
 
 
-mort_19 %>% ggplot(mapping = aes(x = "" , y = value_string, fill = cause, alpha = 0.5)) +
+mort_19 %>% ggplot(mapping = aes(x = "" , y = value_string, fill = cause)) +
   geom_bar(width = 1, stat = "identity")+
   coord_polar("y", start= 0)+
   theme_minimal() +
@@ -288,7 +299,7 @@ mort_19 %>% ggplot(mapping = aes(x = "" , y = value_string, fill = cause, alpha 
   theme(axis.text.x=element_blank()) +
   
   labs(title = "Infant Mortality by Cause and Region", 
-       subtitle = "What are the biggest causes of infant mortality globally?",
+       subtitle = "What are the biggest causes of neonatal mortality globally?",
        caption = "Source: World Health Organization, 2019", 
        fill = "Causes of Infant Mortality")
 
@@ -299,3 +310,5 @@ mort_19 %>% ggplot(mapping = aes(x = "" , y = value_string, fill = cause, alpha 
 [***Interpretation***]{.underline}
 
 This is a quick snapshot of what leading causes of infant mortality are across the world. As is evident by these side-by side comparisons, the Americas, Europe and the Western Pacific experience relatively fewer infant mortalities overall compared to Africa and South East Asia. 
+
+Data for this visualization come from the [World Health Organization](https://www.who.int/data/gho/data/indicators/indicator-details/GHO/neonatal-mortality-rate-(per-1000-live-births)).
