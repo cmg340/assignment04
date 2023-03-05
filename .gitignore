@@ -55,6 +55,7 @@ rsconnect/
 
 #tell git to ignore data
 /mortality.xlsx
-
+/alcohol.csv
+/gdp.xls
 /nha_indicators.xlsx
 /NCD_PAC_ADO.csv
