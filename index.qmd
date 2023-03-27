@@ -36,6 +36,7 @@ library(rgeoboundaries)
 library(sf)
 
 
+
 ```
 
 ## Visualization 1: Scatterplot of Primary Health Expenditures and GDP per Capita
@@ -131,7 +132,10 @@ expenditures %>%
   theme(plot.title = element_text(face = "bold"),
         axis.title = element_text(size = 8, face = "bold"),
         legend.title = element_text(size = 8, face = "bold"),
-        legend.text = element_text(size = 8))
+        legend.text = element_text(size = 8))+
+  
+  #add annotation
+  annotate("text", x = 2000, y = 7.5, label = "Higher GDP does not always translate to higher spending on primary healthcare per capita." )
 
 
 ```
@@ -314,7 +318,6 @@ mort_19 %>% ggplot(mapping = aes(x = "" , y = value_string, fill = cause)) +
   theme_minimal() +
   facet_wrap(~who_region)+ blank_theme +
   theme(axis.text.x=element_blank()) +
-  
   labs(title = "Infant Mortality by Cause and Region", 
        subtitle = "What are the biggest causes of neonatal mortality globally?",
        caption = "Source: World Health Organization, 2019", 
